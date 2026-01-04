@@ -39,6 +39,7 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
+  DOCKER_HUB: amottier75/ygege
 
 jobs:
   lint:
@@ -350,7 +351,7 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: |
-            uwucode/ygege
+            ${{ env.DOCKER_HUB }}
             ghcr.io/${{ env.OWNER_LC }}/ygege
           tags: ${{ steps.tags.outputs.tags }}
           labels: |
@@ -373,7 +374,7 @@ jobs:
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             BUILD_BRANCH=${{ github.ref_name }}
           outputs: |
-            type=image,push-by-digest=true,name=uwucode/ygege,push=true
+            type=image,push-by-digest=true,name=${{ env.DOCKER_HUB }},push=true
             type=image,push-by-digest=true,name=ghcr.io/${{ env.OWNER_LC }}/ygege,push=true
           cache-from: type=gha,scope=${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
@@ -449,7 +450,7 @@ jobs:
             BUILD_BRANCH=${{ github.ref_name }}
             SKIP_UPX=1
           outputs: |
-            type=image,push-by-digest=true,name=uwucode/ygege,push=true
+            type=image,push-by-digest=true,name=${{ env.DOCKER_HUB }},push=true
             type=image,push-by-digest=true,name=ghcr.io/${{ env.OWNER_LC }}/ygege,push=true
           cache-from: type=gha,scope=noupx-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=noupx-${{ matrix.platform }}
@@ -506,10 +507,10 @@ jobs:
           TAGS="${{ steps.tags.outputs.tags }}"
           for TAG in $TAGS; do
             # Docker Hub manifest
-            docker manifest create uwucode/ygege:$TAG \
-              --amend uwucode/ygege@${{ needs.docker.outputs.digest-amd64 }} \
-              --amend uwucode/ygege@${{ needs.docker.outputs.digest-arm64 }}
-            docker manifest push uwucode/ygege:$TAG
+            docker manifest create ${{ env.DOCKER_HUB }}:$TAG \
+              --amend ${{ env.DOCKER_HUB }}@${{ needs.docker.outputs.digest-amd64 }} \
+              --amend ${{ env.DOCKER_HUB }}@${{ needs.docker.outputs.digest-arm64 }}
+            docker manifest push ${{ env.DOCKER_HUB }}:$TAG
             
             # GHCR manifest
             docker manifest create ghcr.io/${{ env.OWNER_LC }}/ygege:$TAG \
@@ -563,10 +564,10 @@ jobs:
           TAGS="${{ steps.tags.outputs.tags }}"
           for TAG in $TAGS; do
             # Docker Hub manifest
-            docker manifest create uwucode/ygege:$TAG \
-              --amend uwucode/ygege@${{ needs.docker-noupx.outputs.digest-amd64 }} \
-              --amend uwucode/ygege@${{ needs.docker-noupx.outputs.digest-arm64 }}
-            docker manifest push uwucode/ygege:$TAG
+            docker manifest create ${{ env.DOCKER_HUB }}:$TAG \
+              --amend ${{ env.DOCKER_HUB }}@${{ needs.docker-noupx.outputs.digest-amd64 }} \
+              --amend ${{ env.DOCKER_HUB }}@${{ needs.docker-noupx.outputs.digest-arm64 }}
+            docker manifest push ${{ env.DOCKER_HUB }}:$TAG
             
             # GHCR manifest
             docker manifest create ghcr.io/${{ env.OWNER_LC }}/ygege:$TAG \
